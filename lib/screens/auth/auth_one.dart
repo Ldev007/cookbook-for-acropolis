@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:cookbook_app/screens/auth/components/login_text.dart';
 import 'package:cookbook_app/screens/auth/components/welcome_text.dart';
-import 'package:cookbook_app/screens/auth/info.dart';
+import 'package:cookbook_app/screens/auth/components/info.dart';
 import 'package:cookbook_app/size_configs.dart';
 import 'package:flutter/material.dart';
 
