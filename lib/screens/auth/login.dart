@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:nb_utils/nb_utils.dart';
 
 import '../../size_configs.dart';
 
@@ -50,7 +52,19 @@ class Login extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () => null,
+            onPressed: () async {
+              FirebaseAuth auth = FirebaseAuth.instance;
+
+              await auth.verifyPhoneNumber(
+                phoneNumber: '+918770062967',
+                verificationCompleted: (phoneAuthCredential) {
+                  print(phoneAuthCredential.smsCode);
+                },
+                codeSent: (verificationId, forceResendingToken) => null,
+                codeAutoRetrievalTimeout: (s) => toast(s),
+                verificationFailed: (error) => toast(error.toString()),
+              );
+            },
             style: ButtonStyle(
               foregroundColor: MaterialStateProperty.all<Color>(Colors.green[100]),
               padding: MaterialStateProperty.all(EdgeInsets.symmetric(

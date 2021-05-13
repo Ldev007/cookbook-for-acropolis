@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "730577519543",
+    "project_id": "cookbook-for-acropolis",
+    "storage_bucket": "cookbook-for-acropolis.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730577519543:android:36826235adc9719e0ade32",
+        "android_client_info": {
+          "package_name": "com.assignment.rasoi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "730577519543-5k4ctlno8nfrhtc3ril7u882m5kfqvf5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assignment.rasoi",
+            "certificate_hash": "e7c40e75ea7639606e242fc68dc557b42380f24a"
+          }
+        },
+        {
+          "client_id": "730577519543-6tvqtoigi1obja6h80rbv2ms237jbqcn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSYjxXOy-dlhlJRDoh54r4aBp7lihAMYk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "730577519543-6tvqtoigi1obja6h80rbv2ms237jbqcn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
