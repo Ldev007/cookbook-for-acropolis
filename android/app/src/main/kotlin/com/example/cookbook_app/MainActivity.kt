@@ -1,4 +1,4 @@
-package com.example.cookbook_app
+package com.assignment.rasoi
 
 import io.flutter.embedding.android.FlutterActivity
 
