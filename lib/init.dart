@@ -23,10 +23,8 @@ class Initialise extends StatelessWidget {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
 
     if (_prefs.getBool('loggedIn') ?? false) {
-      print('home');
       return Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
     } else {
-      print('auth');
       return Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthOne()));
     }
   }
