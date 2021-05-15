@@ -16,7 +16,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_auth: ^1.1.4
   firebase_core: ^1.1.1
+  google_sign_in: ^5.0.3
   nb_utils: ^4.2.4
+  pin_code_fields: ^7.1.0
   shared_preferences: ^2.0.5
 
 dev_dependencies:
