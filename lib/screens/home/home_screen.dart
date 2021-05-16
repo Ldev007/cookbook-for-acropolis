@@ -1,9 +1,11 @@
 import 'package:cookbook_app/constants.dart';
 import 'package:cookbook_app/models/nav_bar_item.dart';
+import 'package:cookbook_app/pages/add_dish.dart';
 import 'package:cookbook_app/pages/edit_profile.dart';
 import 'package:cookbook_app/screens/auth/auth_one.dart';
 import 'package:cookbook_app/screens/favs/favs.dart';
 import 'package:cookbook_app/screens/profile/profile.dart';
+import 'package:cookbook_app/screens/recipes/recipes.dart';
 import 'package:cookbook_app/size_configs.dart';
 import 'package:flutter/material.dart';
 import 'package:cookbook_app/utils.dart';
@@ -203,14 +205,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        label: Text('Add a dish'),
+        icon: Icon(Icons.add),
+        onPressed: () => AddDish(),
+      ),
       body: PageView(
         controller: _pageController,
         children: [
-          Container(
-            child: Center(
-              child: Text('Recipes'),
-            ),
-          ),
+          Recipes(),
           Favourites(),
           ProfilePage(),
         ],
