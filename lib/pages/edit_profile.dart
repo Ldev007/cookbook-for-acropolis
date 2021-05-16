@@ -5,6 +5,7 @@ import 'package:cookbook_app/screens/auth/firebase_methods.dart';
 import 'package:cookbook_app/screens/home/home_screen.dart';
 import 'package:cookbook_app/size_configs.dart';
 import 'package:cookbook_app/utils.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -32,15 +33,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String name;
   String email;
   String pfpUrl;
+  String mobNo;
 
   String nameError;
   String mobNoError;
   String emailError;
 
+  File stockFile;
+
+  String dpUrl;
+
   @override
   void initState() {
     _mobNoCont.text = widget.mobNo;
-    setData();
+    setLocalData();
 
     super.initState();
   }
@@ -75,12 +81,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       child: CircleAvatar(
                         radius: 65,
                         backgroundColor: Colors.green[100],
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.green[300],
-                          size: 70,
-                        ),
-                        backgroundImage: (pfpUrl == '' || pfpUrl == null) ? null : NetworkImage(pfpUrl),
+                        child: stockFile == null && pfpUrl.isEmptyOrNull
+                            ? Icon(
+                                Icons.person,
+                                color: Colors.green[300],
+                                size: 70,
+                              )
+                            : Container(),
+                        backgroundImage: (pfpUrl == '' || pfpUrl == null)
+                            ? stockFile != null
+                                ? FileImage(stockFile)
+                                : null
+                            : NetworkImage(pfpUrl),
                       ),
                     ),
                     Align(
@@ -96,10 +108,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 children: [
                                   ListTile(
                                     onTap: () async {
-                                      PickedFile file = await ImagePicker().getImage(
-                                        source: ImageSource.camera,
-                                      );
-                                      File stockFile = File(file.path);
+                                      try {
+                                        PickedFile file = await ImagePicker().getImage(
+                                          source: ImageSource.camera,
+                                        );
+                                        setState(() {
+                                          stockFile = File(file.path);
+                                          Navigator.pop(context);
+                                        });
+                                      } catch (e) {
+                                        print(e);
+                                      }
                                     },
                                     leading: Icon(Icons.camera),
                                     title: Text('Camera'),
@@ -114,7 +133,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       PickedFile file = await ImagePicker().getImage(
                                         source: ImageSource.gallery,
                                       );
-                                      File stockFile = File(file.path);
+                                      setState(() {
+                                        stockFile = File(file.path);
+                                        Navigator.pop(context);
+                                      });
                                     },
                                     leading: Icon(Icons.photo_library),
                                     title: Text('Gallery'),
@@ -171,7 +193,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       cursorColor: Colors.green[800],
                       onChanged: (val) {
                         setState(() {
-                          if (val.length > 0) {
+                          if (val.length > 0 || !_prefs.getString('username').isEmptyOrNull) {
                             nameError = null;
                           } else {
                             nameError = Constants.textFieldErrorText;
@@ -187,9 +209,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     30.height,
                     TextFormField(
                       controller: _emailCont,
-                      onChanged: (val) {
+                      onChanged: (val) async {
+                        SharedPreferences _prefs = await SharedPreferences.getInstance();
                         setState(() {
-                          if ((val.length > 0 && val.validateEmail()) || !_mobNoCont.text.isEmptyOrNull) {
+                          if ((val.length > 0 && val.validateEmail()) ||
+                              !_mobNoCont.text.isEmptyOrNull ||
+                              !_prefs.getString('mobNo').isEmptyOrNull && !_prefs.getString('email').isEmptyOrNull) {
                             emailError = null;
                           } else {
                             emailError = Constants.emailErrorText;
@@ -207,7 +232,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     30.height,
                     TextFormField(
                       controller: _mobNoCont,
-                      decoration: InputDecoration(enabled: false),
+                      decoration: InputDecoration(
+                        hintText: 'Mobile Number',
+                        enabled: widget.title == Constants.editTitleForProfilePage,
+                      ),
                       cursorColor: Colors.green[800],
                       style: TextStyle(
                         fontSize: Theme.of(context).textTheme.subtitle1.fontSize,
@@ -218,19 +246,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ElevatedButton(
                       style: Utils.getButtonStyle(context, width: null, height: null),
                       onPressed: () async {
+                        print('Tapped');
                         SharedPreferences _prefs = await SharedPreferences.getInstance();
 
                         try {
-                          if (_nameCont.text.isEmptyOrNull && _emailCont.text.isEmptyOrNull) {
+                          if (_nameCont.text.isEmptyOrNull &&
+                              _emailCont.text.isEmptyOrNull &&
+                              _prefs.getString('email').isEmptyOrNull &&
+                              _prefs.getString('username').isEmptyOrNull &&
+                              _prefs.getString('mobNo').isEmptyOrNull) {
                             setState(() {
                               nameError = Constants.textFieldErrorText;
                               emailError = Constants.textFieldErrorText;
                             });
-                          } else if (_nameCont.text.isEmptyOrNull) {
+                          } else if (_nameCont.text.isEmptyOrNull && _prefs.getString('username').isEmptyOrNull) {
                             setState(() {
                               nameError = Constants.textFieldErrorText;
                             });
-                          } else if (_emailCont.text.isEmptyOrNull && _mobNoCont.text.isEmptyOrNull) {
+                          } else if (_emailCont.text.isEmptyOrNull &&
+                              _mobNoCont.text.isEmptyOrNull &&
+                              _prefs.getString('email').isEmptyOrNull &&
+                              _prefs.getString('mobNo').isEmptyOrNull) {
                             setState(() {
                               emailError = Constants.emailErrorText;
                             });
@@ -239,31 +275,74 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             nameError = null;
                             if (!(widget.newUser ?? false)) {
                               print('setting values for user ' + _prefs.getString('uid'));
-                              fs.collection('users').doc(_prefs.getString('uid')).set({
-                                'name': _nameCont.text,
-                                'email': _emailCont.text,
-                                'pfp_url': pfpUrl ?? '',
-                              }).then((value) => HomeScreen().launch(context, isNewTask: true));
+                              if (stockFile != null) {
+                                SharedPreferences _prefs = await SharedPreferences.getInstance();
+
+                                await FirebaseStorage.instance.ref(_prefs.getString('uid') + '.png').putFile(stockFile);
+                                dpUrl = await FirebaseStorage.instance
+                                    .ref(_prefs.getString('uid') + '.png')
+                                    .getDownloadURL();
+
+                                _prefs.setString('pfpUrl', dpUrl);
+                                setState(() {
+                                  pfpUrl = dpUrl;
+                                });
+                              }
+
+                              fs.collection('users').doc(_prefs.getString('uid')).set(
+                                {
+                                  'name': _nameCont.text ?? _prefs.getString('username') ?? '',
+                                  'email': _emailCont.text ?? _prefs.getString('email') ?? '',
+                                  'mobNo': _mobNoCont.text ?? _prefs.getString('mobNo') ?? '',
+                                  'pfp_url': pfpUrl ?? _prefs.getString('pfpUrl') ?? '',
+                                },
+                              ).then(
+                                (value) async {
+                                  _prefs.setBool('loggedIn', true);
+                                  return HomeScreen().launch(context, isNewTask: true);
+                                },
+                              );
                             } else {
                               int lenOfDocs;
                               QuerySnapshot snap = await fs.collection('users').get();
                               lenOfDocs = snap.docs.length;
+
+                              if (stockFile != null) {
+                                SharedPreferences _prefs = await SharedPreferences.getInstance();
+
+                                await FirebaseStorage.instance.ref('user${lenOfDocs + 1}' + '.png').putFile(stockFile);
+
+                                dpUrl = await FirebaseStorage.instance
+                                    .ref('user${lenOfDocs + 1}' + '.png')
+                                    .getDownloadURL();
+
+                                _prefs.setString('pfpUrl', dpUrl);
+                                setState(() {
+                                  pfpUrl = dpUrl;
+                                });
+                              }
                               fs.collection('users').doc('user' + (lenOfDocs + 1).toString()).set({
-                                'name': _nameCont.text,
-                                'email': _emailCont.text,
-                                'mobNo': _mobNoCont.text,
-                                'pfp_url': '',
-                              }).then((value) {
-                                HomeScreen().launch(context, isNewTask: true);
-                                return Utils.normalToast(
-                                  'Profile setup successful !',
-                                  ToastGravity.BOTTOM,
-                                );
-                              });
+                                'name': _nameCont.text ?? _prefs.getString('username') ?? '',
+                                'email': _emailCont.text ?? _prefs.getString('email') ?? '',
+                                'mobNo': _mobNoCont.text ?? _prefs.getString('mobNo') ?? '',
+                                'pfp_url': dpUrl ?? _prefs.getString('pfpUrl') ?? '',
+                              }).then(
+                                (value) async {
+                                  await setPrefs();
+                                  _prefs.setBool('loggedIn', true);
+                                  _prefs.setString('uid', 'user${lenOfDocs + 1}');
+
+                                  HomeScreen().launch(context, isNewTask: true);
+                                  return Utils.normalToast(
+                                    'Profile setup successful !',
+                                    ToastGravity.BOTTOM,
+                                  );
+                                },
+                              );
                             }
                           }
-                        } catch (e) {
-                          print(e.toString());
+                        } catch (e, s) {
+                          print(e.toString() + '\n' + s.toString());
                         }
                       },
                       child: Text('Submit'),
@@ -278,23 +357,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
     ));
   }
 
-  void setData() async {
+  void setLocalData() async {
     print('setting data');
     _prefs = await SharedPreferences.getInstance();
-
     setState(() {
-      name = _prefs.getString('username');
-      email = _prefs.getString('email');
       pfpUrl = _prefs.getString('pfpUrl') ?? '';
-
-      if (name != null && email != null) {
-        _nameCont.text = name;
-        _emailCont.text = email;
-      } else if (name != null) {
-        _nameCont.text = name;
-      } else if (email != null) {
-        _emailCont.text = email;
-      }
     });
+  }
+
+  Future<void> setPrefs() async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+
+    _prefs.setString('username', _nameCont.text ?? _prefs.getString('username') ?? '');
+    _prefs.setString('email', _emailCont.text ?? _prefs.getString('email') ?? '');
+    _prefs.setString('mobNo', _mobNoCont.text ?? _prefs.getString('mobNo') ?? '');
+
+    return;
   }
 }
