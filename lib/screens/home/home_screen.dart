@@ -1,12 +1,13 @@
+import 'package:cookbook_app/constants.dart';
 import 'package:cookbook_app/models/nav_bar_item.dart';
 import 'package:cookbook_app/pages/edit_profile.dart';
-import 'package:cookbook_app/pages/settings.dart';
+import 'package:cookbook_app/screens/auth/auth_one.dart';
 import 'package:cookbook_app/size_configs.dart';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 class HomeScreen extends StatelessWidget {
-  List<NavBarItem> navBarItems = [
+  final List<NavBarItem> navBarItems = [
     NavBarItem(
       label: 'Recipes',
       unselectedIcon: Icons.restaurant_menu_rounded,
@@ -43,7 +44,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      drawerScrimColor: Colors.green.withOpacity(0.3),
+      drawerScrimColor: Colors.green[600].withOpacity(0.7),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           switch (index) {
@@ -113,17 +114,25 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             IconButton(
                               icon: Icon(
-                                Icons.settings,
+                                Icons.logout,
                                 color: Colors.white,
                               ),
-                              onPressed: () => SettingsPage().launch(context),
+                              onPressed: () async {
+                                SharedPreferences _prefs = await SharedPreferences.getInstance();
+                                _prefs.clear();
+                                AuthOne().launch(context);
+                              },
                             ),
                             IconButton(
                               icon: Icon(
                                 Icons.edit,
                                 color: Colors.white,
                               ),
-                              onPressed: () => EditProfilePage().launch(context),
+                              onPressed: () => EditProfilePage(
+                                Constants.editTitleForProfilePage,
+                              ).launch(
+                                context,
+                              ),
                             ),
                           ],
                         ),
