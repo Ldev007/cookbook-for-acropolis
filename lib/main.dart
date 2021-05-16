@@ -31,6 +31,10 @@ class MyApp extends StatelessWidget {
             borderSide: BorderSide(color: Colors.red[700]),
             borderRadius: BorderRadius.circular(15),
           ),
+          disabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.green[200]),
+            borderRadius: BorderRadius.circular(15),
+          ),
           hintStyle: TextStyle(
             color: Colors.green[700],
           ),

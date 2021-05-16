@@ -12,10 +12,11 @@ import 'package:nb_utils/nb_utils.dart';
 import '../constants.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage(this.title, {Key key, this.newUser}) : super(key: key);
+  const EditProfilePage(this.title, {Key key, this.newUser, this.mobNo}) : super(key: key);
 
   final String title;
   final bool newUser;
+  final String mobNo;
 
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
@@ -25,7 +26,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   SharedPreferences _prefs;
 
   TextEditingController _nameCont = TextEditingController();
-
+  TextEditingController _mobNoCont = TextEditingController();
   TextEditingController _emailCont = TextEditingController();
 
   String name;
@@ -33,10 +34,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String pfpUrl;
 
   String nameError;
+  String mobNoError;
   String emailError;
 
   @override
   void initState() {
+    _mobNoCont.text = widget.mobNo;
     setData();
 
     super.initState();
@@ -186,10 +189,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       controller: _emailCont,
                       onChanged: (val) {
                         setState(() {
-                          if (val.length > 0) {
+                          if ((val.length > 0 && val.validateEmail()) || !_mobNoCont.text.isEmptyOrNull) {
                             emailError = null;
                           } else {
-                            emailError = Constants.textFieldErrorText;
+                            emailError = Constants.emailErrorText;
                           }
                         });
                       },
@@ -201,50 +204,66 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         color: Colors.green[700],
                       ),
                     ),
+                    30.height,
+                    TextFormField(
+                      controller: _mobNoCont,
+                      decoration: InputDecoration(enabled: false),
+                      cursorColor: Colors.green[800],
+                      style: TextStyle(
+                        fontSize: Theme.of(context).textTheme.subtitle1.fontSize,
+                        color: Colors.green[700],
+                      ),
+                    ),
                     70.height,
                     ElevatedButton(
                       style: Utils.getButtonStyle(context, width: null, height: null),
                       onPressed: () async {
                         SharedPreferences _prefs = await SharedPreferences.getInstance();
 
-                        if (_nameCont.text.isEmptyOrNull && _emailCont.text.isEmptyOrNull) {
-                          setState(() {
-                            nameError = Constants.textFieldErrorText;
-                            emailError = Constants.textFieldErrorText;
-                          });
-                        } else if (_nameCont.text.isEmptyOrNull) {
-                          setState(() {
-                            nameError = Constants.textFieldErrorText;
-                          });
-                        } else if (_emailCont.text.isEmptyOrNull) {
-                          setState(() {
-                            emailError = Constants.textFieldErrorText;
-                          });
-                        } else {
-                          if (!widget.newUser ?? false) {
-                            print('setting values for user ' + _prefs.getString('uid'));
-                            fs.collection('users').doc(_prefs.getString('uid')).set({
-                              'name': _nameCont.text,
-                              'email': _emailCont.text,
-                              'pfp_url': pfpUrl ?? '',
-                            }).then((value) => HomeScreen().launch(context, isNewTask: true));
-                          } else {
-                            int lenOfDocs;
-                            QuerySnapshot snap = await fs.collection('users').get();
-                            lenOfDocs = snap.docs.length;
-                            checkDuplicacy(_emailCont.text);
-                            fs.collection('users').doc('user' + (lenOfDocs + 1).toString()).set({
-                              'name': _nameCont.text,
-                              'email': _emailCont.text,
-                              'pfp_url': '',
-                            }).then((value) {
-                              HomeScreen().launch(context, isNewTask: true);
-                              return Utils.normalToast(
-                                'Profile setup successful !',
-                                ToastGravity.BOTTOM,
-                              );
+                        try {
+                          if (_nameCont.text.isEmptyOrNull && _emailCont.text.isEmptyOrNull) {
+                            setState(() {
+                              nameError = Constants.textFieldErrorText;
+                              emailError = Constants.textFieldErrorText;
                             });
+                          } else if (_nameCont.text.isEmptyOrNull) {
+                            setState(() {
+                              nameError = Constants.textFieldErrorText;
+                            });
+                          } else if (_emailCont.text.isEmptyOrNull && _mobNoCont.text.isEmptyOrNull) {
+                            setState(() {
+                              emailError = Constants.emailErrorText;
+                            });
+                          } else {
+                            emailError = null;
+                            nameError = null;
+                            if (!(widget.newUser ?? false)) {
+                              print('setting values for user ' + _prefs.getString('uid'));
+                              fs.collection('users').doc(_prefs.getString('uid')).set({
+                                'name': _nameCont.text,
+                                'email': _emailCont.text,
+                                'pfp_url': pfpUrl ?? '',
+                              }).then((value) => HomeScreen().launch(context, isNewTask: true));
+                            } else {
+                              int lenOfDocs;
+                              QuerySnapshot snap = await fs.collection('users').get();
+                              lenOfDocs = snap.docs.length;
+                              fs.collection('users').doc('user' + (lenOfDocs + 1).toString()).set({
+                                'name': _nameCont.text,
+                                'email': _emailCont.text,
+                                'mobNo': _mobNoCont.text,
+                                'pfp_url': '',
+                              }).then((value) {
+                                HomeScreen().launch(context, isNewTask: true);
+                                return Utils.normalToast(
+                                  'Profile setup successful !',
+                                  ToastGravity.BOTTOM,
+                                );
+                              });
+                            }
                           }
+                        } catch (e) {
+                          print(e.toString());
                         }
                       },
                       child: Text('Submit'),

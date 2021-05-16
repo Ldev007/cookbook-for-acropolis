@@ -39,7 +39,11 @@ class Login extends StatelessWidget {
 
               HomeScreen().launch(context);
 
-              checkProfileExistsOrNot(context, filterByMobNo: false, email: googleUser.email);
+              checkProfileExistsOrNot(
+                context,
+                filterByMobNo: false,
+                email: googleUser.email,
+              );
 
               return await FirebaseAuth.instance.signInWithCredential(credential);
             },
@@ -113,7 +117,7 @@ class Login extends StatelessWidget {
                                       toast('Code has been sent');
                                       verifId = verificationId;
                                     },
-                                    codeAutoRetrievalTimeout: (s) => toast(s),
+                                    codeAutoRetrievalTimeout: (s) => null,
                                     verificationFailed: (error) {
                                       print(error.toString());
                                       toast(error.toString());
@@ -193,22 +197,28 @@ class Login extends StatelessWidget {
                                   if (!otpCont.text.isEmptyOrNull) {
                                     smsCode = otpCont.text;
 
-                                    PhoneAuthCredential cred =
-                                        PhoneAuthProvider.credential(verificationId: verifId, smsCode: smsCode);
+                                    PhoneAuthCredential cred = PhoneAuthProvider.credential(
+                                      verificationId: verifId,
+                                      smsCode: smsCode,
+                                    );
 
                                     await auth.signInWithCredential(creds ?? cred);
 
                                     await checkProfileExistsOrNot(
                                       context,
-                                      mobNo: _mobNoCont.text,
                                       filterByMobNo: true,
+                                      mobNo: '+91' + _mobNoCont.text,
                                     );
 
                                     return toast('Login successfull !');
                                   } else {
-                                    Utils.errorToast('Enter a valid OTP', ToastGravity.TOP);
+                                    Utils.errorToast(
+                                      'Enter a valid OTP',
+                                      ToastGravity.TOP,
+                                    );
                                   }
                                 } catch (e) {
+                                  print(e.toString());
                                   Utils.errorToast(
                                     'Incorrect OTP entered !',
                                     ToastGravity.TOP,
