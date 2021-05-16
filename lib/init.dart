@@ -1,11 +1,9 @@
-import 'package:cookbook_app/constants.dart';
-import 'package:cookbook_app/pages/edit_profile.dart';
+import 'package:cookbook_app/screens/auth/auth_one.dart';
+import 'package:cookbook_app/screens/home/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cookbook_app/screens/home/home_screen.dart';
-import 'package:cookbook_app/screens/auth/auth_one.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nb_utils/nb_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Initialise extends StatelessWidget {
   @override
@@ -27,25 +25,6 @@ class Initialise extends StatelessWidget {
 
     if ((_prefs.getBool('loggedIn') ?? false)) {
       return HomeScreen().launch(
-        context,
-        isNewTask: true,
-      );
-    } else if (!_prefs.getString('username').isEmptyOrNull) {
-      return EditProfilePage(
-        Constants.setupTitleForProfilePage,
-      ).launch(
-        context,
-        isNewTask: true,
-      );
-    } else if (!_prefs.getString('email').isEmptyOrNull) {
-      return EditProfilePage(
-        Constants.setupTitleForProfilePage,
-      ).launch(
-        context,
-        isNewTask: true,
-      );
-    } else if ((_prefs.getBool('loggedIn') ?? false)) {
-      return AuthOne().launch(
         context,
         isNewTask: true,
       );
