@@ -2,11 +2,19 @@ import 'package:cookbook_app/constants.dart';
 import 'package:cookbook_app/models/nav_bar_item.dart';
 import 'package:cookbook_app/pages/edit_profile.dart';
 import 'package:cookbook_app/screens/auth/auth_one.dart';
+import 'package:cookbook_app/screens/favs/favs.dart';
+import 'package:cookbook_app/screens/profile/profile.dart';
 import 'package:cookbook_app/size_configs.dart';
 import 'package:flutter/material.dart';
+import 'package:cookbook_app/utils.dart';
 import 'package:nb_utils/nb_utils.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final List<NavBarItem> navBarItems = [
     NavBarItem(
       label: 'Recipes',
@@ -25,6 +33,10 @@ class HomeScreen extends StatelessWidget {
     ),
   ];
 
+  PageController _pageController = PageController();
+
+  int _navIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -36,7 +48,7 @@ class HomeScreen extends StatelessWidget {
         leadingWidth: 90,
         iconTheme: IconThemeData(color: Colors.green[500]),
         title: Text(
-          'BROWSE',
+          Utils().getPageTitle(_navIndex),
           style: TextStyle(
             color: Colors.green[600],
             letterSpacing: 1.5,
@@ -49,10 +61,28 @@ class HomeScreen extends StatelessWidget {
         onTap: (index) {
           switch (index) {
             case 0:
+              _pageController.animateToPage(0, duration: Duration(milliseconds: 1000), curve: Curves.easeInSine);
+              setState(() {
+                _navIndex = 0;
+              });
+              break;
             case 1:
+              _pageController.animateToPage(1, duration: Duration(milliseconds: 1000), curve: Curves.easeInSine);
+              setState(() {
+                _navIndex = 1;
+              });
+              break;
             case 2:
+              _pageController.animateToPage(2, duration: Duration(milliseconds: 1000), curve: Curves.easeInSine);
+              setState(() {
+                _navIndex = 2;
+              });
+              break;
+            default:
+              break;
           }
         },
+        currentIndex: _navIndex,
         items: navBarItems
             .map(
               (navItem) => BottomNavigationBarItem(
@@ -145,7 +175,18 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Container(),
+      body: PageView(
+        controller: _pageController,
+        children: [
+          Container(
+            child: Center(
+              child: Text('Recipes'),
+            ),
+          ),
+          Favourites(),
+          ProfilePage(),
+        ],
+      ),
     ));
   }
 }

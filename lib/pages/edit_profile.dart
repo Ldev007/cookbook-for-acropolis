@@ -210,11 +210,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     TextFormField(
                       controller: _emailCont,
                       onChanged: (val) async {
-                        SharedPreferences _prefs = await SharedPreferences.getInstance();
+                        _prefs = await SharedPreferences.getInstance();
                         setState(() {
                           if ((val.length > 0 && val.validateEmail()) ||
                               !_mobNoCont.text.isEmptyOrNull ||
-                              !_prefs.getString('mobNo').isEmptyOrNull && !_prefs.getString('email').isEmptyOrNull) {
+                              !_prefs.getString('mobNo').isEmptyOrNull ||
+                              !_prefs.getString('email').isEmptyOrNull) {
                             emailError = null;
                           } else {
                             emailError = Constants.emailErrorText;
@@ -229,54 +230,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         color: Colors.green[700],
                       ),
                     ),
-                    30.height,
-                    TextFormField(
-                      controller: _mobNoCont,
-                      decoration: InputDecoration(
-                        hintText: 'Mobile Number',
-                        enabled: widget.title == Constants.editTitleForProfilePage,
-                      ),
-                      cursorColor: Colors.green[800],
-                      style: TextStyle(
-                        fontSize: Theme.of(context).textTheme.subtitle1.fontSize,
-                        color: Colors.green[700],
-                      ),
-                    ),
                     70.height,
                     ElevatedButton(
                       style: Utils.getButtonStyle(context, width: null, height: null),
                       onPressed: () async {
-                        print('Tapped');
-                        SharedPreferences _prefs = await SharedPreferences.getInstance();
+                        _prefs = await SharedPreferences.getInstance();
 
                         try {
-                          if (_nameCont.text.isEmptyOrNull &&
-                              _emailCont.text.isEmptyOrNull &&
-                              _prefs.getString('email').isEmptyOrNull &&
-                              _prefs.getString('username').isEmptyOrNull &&
-                              _prefs.getString('mobNo').isEmptyOrNull) {
+                          if (_nameCont.text.isEmptyOrNull && _prefs.getString('username').isEmptyOrNull) {
                             setState(() {
                               nameError = Constants.textFieldErrorText;
+                            });
+                          } else if ((_emailCont.text.isEmptyOrNull && _prefs.getString('email').isEmptyOrNull) &&
+                              (_mobNoCont.text.isEmptyOrNull && _prefs.getString('mobNo').isEmptyOrNull)) {
+                            print('Email error' + _prefs.getString('mobNo'));
+                            setState(() {
+                              nameError = null;
                               emailError = Constants.textFieldErrorText;
                             });
-                          } else if (_nameCont.text.isEmptyOrNull && _prefs.getString('username').isEmptyOrNull) {
-                            setState(() {
-                              nameError = Constants.textFieldErrorText;
-                            });
-                          } else if (_emailCont.text.isEmptyOrNull &&
-                              _mobNoCont.text.isEmptyOrNull &&
-                              _prefs.getString('email').isEmptyOrNull &&
-                              _prefs.getString('mobNo').isEmptyOrNull) {
-                            setState(() {
-                              emailError = Constants.emailErrorText;
-                            });
                           } else {
-                            emailError = null;
-                            nameError = null;
+                            setState(() {
+                              emailError = null;
+                              nameError = null;
+                            });
                             if (!(widget.newUser ?? false)) {
                               print('setting values for user ' + _prefs.getString('uid'));
                               if (stockFile != null) {
-                                SharedPreferences _prefs = await SharedPreferences.getInstance();
+                                _prefs = await SharedPreferences.getInstance();
 
                                 await FirebaseStorage.instance.ref(_prefs.getString('uid') + '.png').putFile(stockFile);
                                 dpUrl = await FirebaseStorage.instance
@@ -308,7 +288,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               lenOfDocs = snap.docs.length;
 
                               if (stockFile != null) {
-                                SharedPreferences _prefs = await SharedPreferences.getInstance();
+                                _prefs = await SharedPreferences.getInstance();
 
                                 await FirebaseStorage.instance.ref('user${lenOfDocs + 1}' + '.png').putFile(stockFile);
 
@@ -325,7 +305,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 'name': _nameCont.text ?? _prefs.getString('username') ?? '',
                                 'email': _emailCont.text ?? _prefs.getString('email') ?? '',
                                 'mobNo': _mobNoCont.text ?? _prefs.getString('mobNo') ?? '',
-                                'pfp_url': dpUrl ?? _prefs.getString('pfpUrl') ?? '',
+                                'pfp_url': pfpUrl ?? _prefs.getString('pfpUrl') ?? '',
                               }).then(
                                 (value) async {
                                   await setPrefs();
@@ -360,16 +340,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void setLocalData() async {
     print('setting data');
     _prefs = await SharedPreferences.getInstance();
+
     setState(() {
       pfpUrl = _prefs.getString('pfpUrl') ?? '';
     });
   }
 
   Future<void> setPrefs() async {
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    _prefs = await SharedPreferences.getInstance();
 
     _prefs.setString('username', _nameCont.text ?? _prefs.getString('username') ?? '');
-    _prefs.setString('email', _emailCont.text ?? _prefs.getString('email') ?? '');
+    _prefs.setString('email', _emailCont.text ?? _prefs.getString('email') ?? 'Set your email');
     _prefs.setString('mobNo', _mobNoCont.text ?? _prefs.getString('mobNo') ?? '');
 
     return;

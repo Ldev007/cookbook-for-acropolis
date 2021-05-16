@@ -23,22 +23,25 @@ Future<void> checkProfileExistsOrNot(BuildContext context, {bool filterByMobNo, 
             !qSnap.docs[0].data()['pfpUrl'].toString().isEmptyOrNull) {
           print(qSnap.docs[0].data());
           _prefs.setString('username', qSnap.docs[0].data()['name']);
-          _prefs.setString('email', qSnap.docs[0].data()['email']);
-          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url']);
+          _prefs.setString(
+              'email', qSnap.docs[0].data()['email'] != '' ? 'Set your email' : qSnap.docs[0].data()['email']);
+          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url'].toString());
           HomeScreen().launch(context, isNewTask: true);
         } else if (!qSnap.docs[0].data()['name'].toString().isEmptyOrNull &&
             !qSnap.docs[0].data()['email'].toString().isEmptyOrNull) {
           _prefs.setString('username', qSnap.docs[0].data()['name']);
-          _prefs.setString('email', qSnap.docs[0].data()['email']);
+          _prefs.setString(
+              'email', qSnap.docs[0].data()['email'] != '' ? 'Set your email' : qSnap.docs[0].data()['email']);
           EditProfilePage(Constants.setupTitleForProfilePage).launch(context, isNewTask: true);
         } else if (!qSnap.docs[0].data()['email'].toString().isEmptyOrNull &&
             !qSnap.docs[0].data()['pfp_url'].toString().isEmptyOrNull) {
-          _prefs.setString('email', qSnap.docs[0].data()['email']);
-          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url']);
+          _prefs.setString(
+              'email', qSnap.docs[0].data()['email'] != '' ? 'Set your email' : qSnap.docs[0].data()['email']);
+          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url'].toString());
           EditProfilePage(Constants.setupTitleForProfilePage).launch(context, isNewTask: true);
         } else if (!qSnap.docs[0].data()['pfp_url'].toString().isEmptyOrNull &&
             !qSnap.docs[0].data()['name'].toString().isEmptyOrNull) {
-          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url']);
+          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url'].toString());
           _prefs.setString('username', qSnap.docs[0].data()['name']);
           EditProfilePage(Constants.setupTitleForProfilePage).launch(context, isNewTask: true);
         } else {
@@ -53,28 +56,35 @@ Future<void> checkProfileExistsOrNot(BuildContext context, {bool filterByMobNo, 
       }
     } else {
       qSnap = await usrs.where('mobNo', isEqualTo: mobNo).get();
+      _prefs.setString('email', 'Set your email');
       if (qSnap.docs.length > 0) {
         _prefs.setString('uid', qSnap.docs[0].id);
         if (!qSnap.docs[0].data()['name'].toString().isEmptyOrNull &&
             !qSnap.docs[0].data()['mobNo'].toString().isEmptyOrNull &&
-            !qSnap.docs[0].data()['pfpUrl'].toString().isEmptyOrNull) {
+            !qSnap.docs[0].data()['pfp_url'].toString().isEmptyOrNull) {
           _prefs.setString('username', qSnap.docs[0].data()['name']);
-          _prefs.setString('mobNo', qSnap.docs[0].data()['mobNo']);
-          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url']);
+          _prefs.setString(
+              'mobNo', qSnap.docs[0].data()['mobNo'] != '' ? qSnap.docs[0].data()['mobNo'] : 'Set your mobile number');
+          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url'].toString());
           HomeScreen().launch(context, isNewTask: true);
         } else if (!qSnap.docs[0].data()['name'].toString().isEmptyOrNull &&
             !qSnap.docs[0].data()['mobNo'].toString().isEmptyOrNull) {
           _prefs.setString('username', qSnap.docs[0].data()['name']);
-          _prefs.setString('mobNo', qSnap.docs[0].data()['mobNo']);
+          _prefs.setString(
+              'mobNo',
+              qSnap.docs[0].data()['mobNo'] != ''
+                  ? qSnap.docs[0].data()['mobNo'].toString()
+                  : 'Set your mobile number ');
           EditProfilePage(Constants.setupTitleForProfilePage).launch(context, isNewTask: true);
-        } else if (!qSnap.docs[0].data()['mobNo'.toString().isEmptyOrNull] &&
+        } else if (!qSnap.docs[0].data()['mobNo'].toString().isEmptyOrNull &&
             !qSnap.docs[0].data()['pfp_url'].toString().isEmptyOrNull) {
-          _prefs.setString('mobNo', qSnap.docs[0].data()['email']);
-          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url']);
+          _prefs.setString(
+              'mobNo', qSnap.docs[0].data()['mobNo'] != '' ? 'Set your mobile number' : qSnap.docs[0].data()['mobNo']);
+          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url'].toString());
           EditProfilePage(Constants.setupTitleForProfilePage).launch(context, isNewTask: true);
         } else if (!qSnap.docs[0].data()['pfp_url'].toString().isEmptyOrNull &&
             !qSnap.docs[0].data()['name'].toString().isEmptyOrNull) {
-          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url']);
+          _prefs.setString('pfpUrl', qSnap.docs[0].data()['pfp_url'].toString());
           _prefs.setString('username', qSnap.docs[0].data()['name']);
           EditProfilePage(Constants.setupTitleForProfilePage).launch(context, isNewTask: true);
         } else {

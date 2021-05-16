@@ -40,4 +40,18 @@ class Utils {
   static normalToast(String text, ToastGravity gravity) {
     toast(text, gravity: gravity);
   }
+
+  String getPageTitle(int i) {
+    switch (i) {
+      case 0:
+        return 'BROWSE';
+
+      case 1:
+        return 'FAVOURITES';
+      case 2:
+        return 'PROFILE';
+      default:
+        return null;
+    }
+  }
 }
