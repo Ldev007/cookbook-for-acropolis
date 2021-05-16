@@ -109,9 +109,37 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          CircleAvatar(
-                            radius: 35,
-                            backgroundColor: Colors.white38,
+                          FutureBuilder<SharedPreferences>(
+                            future: SharedPreferences.getInstance(),
+                            builder: (cx, prefs) {
+                              return Container(
+                                padding: EdgeInsets.all(2.5),
+                                decoration: BoxDecoration(
+                                  color: Colors.green[100],
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 15,
+                                      color: Colors.green[600],
+                                    ),
+                                  ],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: CircleAvatar(
+                                  radius: 35,
+                                  child: prefs.data.getString('pfpUrl').isEmptyOrNull
+                                      ? Icon(
+                                          Icons.person,
+                                          size: 40,
+                                          color: Colors.green[300],
+                                        )
+                                      : Container(),
+                                  backgroundImage: prefs.data.getString('pfpUrl').isEmptyOrNull
+                                      ? null
+                                      : NetworkImage(prefs.data.getString('pfpUrl')),
+                                  backgroundColor: Colors.white38,
+                                ),
+                              );
+                            },
                           ),
                           Text.rich(
                             TextSpan(

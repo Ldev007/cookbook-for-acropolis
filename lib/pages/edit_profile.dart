@@ -78,21 +78,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: Stack(
                   children: [
                     Align(
-                      child: CircleAvatar(
-                        radius: 65,
-                        backgroundColor: Colors.green[100],
-                        child: stockFile == null && pfpUrl.isEmptyOrNull
-                            ? Icon(
-                                Icons.person,
-                                color: Colors.green[300],
-                                size: 70,
-                              )
-                            : Container(),
-                        backgroundImage: (pfpUrl == '' || pfpUrl == null)
-                            ? stockFile != null
-                                ? FileImage(stockFile)
-                                : null
-                            : NetworkImage(pfpUrl),
+                      child: Container(
+                        padding: EdgeInsets.all(2.5),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 15,
+                              color: Colors.green[600],
+                            ),
+                          ],
+                          color: Colors.white,
+                        ),
+                        child: CircleAvatar(
+                          radius: 65,
+                          backgroundColor: Colors.green[100],
+                          child: stockFile == null && pfpUrl.isEmptyOrNull
+                              ? Icon(
+                                  Icons.person,
+                                  color: Colors.green[300],
+                                  size: 70,
+                                )
+                              : Container(),
+                          backgroundImage: (pfpUrl == '' || pfpUrl == null)
+                              ? stockFile != null
+                                  ? FileImage(stockFile)
+                                  : null
+                              : NetworkImage(pfpUrl),
+                        ),
                       ),
                     ),
                     Align(
