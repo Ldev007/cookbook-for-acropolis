@@ -8,7 +8,7 @@ import 'package:nb_utils/nb_utils.dart';
 final FirebaseFirestore fs = FirebaseFirestore.instance;
 
 Future<void> checkProfileExistsOrNot(BuildContext context, {bool filterByMobNo, String mobNo, String email}) async {
-  CollectionReference usrs = FirebaseFirestore.instance.collection('users');
+  CollectionReference usrs = fs.collection('users');
   QuerySnapshot<Map<String, dynamic>> qSnap;
 
   SharedPreferences _prefs = await SharedPreferences.getInstance();
@@ -103,4 +103,8 @@ Future<void> checkProfileExistsOrNot(BuildContext context, {bool filterByMobNo, 
   }
 
   return;
+}
+
+Future<void> checkIfFoodExistsOrNot() async {
+  
 }

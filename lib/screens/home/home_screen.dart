@@ -208,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         label: Text('Add a dish'),
         icon: Icon(Icons.add),
-        onPressed: () => AddDish(),
+        onPressed: () => AddDish().launch(context),
       ),
       body: PageView(
         controller: _pageController,
