@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cookbook_app/screens/auth/firebase_methods.dart';
 import 'package:cookbook_app/size_configs.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../constants.dart';
+import '../utils.dart';
 
 class AddDish extends StatefulWidget {
   @override
@@ -15,6 +17,8 @@ class AddDish extends StatefulWidget {
 }
 
 class _AddDishState extends State<AddDish> {
+  SharedPreferences _prefs;
+
   File stockFile;
 
   String dishType;
@@ -25,6 +29,7 @@ class _AddDishState extends State<AddDish> {
   TextEditingController _descriptionCont = TextEditingController();
 
   String errorText;
+  String dishImageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -258,6 +263,10 @@ class _AddDishState extends State<AddDish> {
                                   ),
                                 ),
                               );
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(strokeWidth: 1.5),
+                              );
                             }
                           },
                         ),
@@ -306,15 +315,21 @@ class _AddDishState extends State<AddDish> {
                                   ),
                                 ),
                               );
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(strokeWidth: 1.5),
+                              );
                             }
                           },
                         ),
                         Text(errorText ?? '', style: TextStyle(color: Colors.red)),
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_nameCont.text.isEmptyOrNull ||
                                 _timeCont.text.isEmptyOrNull ||
-                                _descriptionCont.text.isEmptyOrNull) {
+                                _descriptionCont.text.isEmptyOrNull ||
+                                dishType.isEmptyOrNull ||
+                                cuisineType.isEmptyOrNull) {
                               setState(() {
                                 errorText = '*All fields are to be filled correctly';
                               });
@@ -322,7 +337,39 @@ class _AddDishState extends State<AddDish> {
                               setState(() {
                                 errorText = null;
                               });
-                              
+                              if (await checkIfFoodExistsOrNot(dishName: _nameCont.text, cuisineType: cuisineType)) {
+                                if (stockFile != null) {
+                                  _prefs = await SharedPreferences.getInstance();
+
+                                  await FirebaseStorage.instance
+                                      .ref(
+                                        'dishes/${_nameCont.text}.png',
+                                      )
+                                      .putFile(stockFile);
+                                  dishImageUrl = await FirebaseStorage.instance
+                                      .ref(
+                                        'dishes/${_nameCont.text}.png',
+                                      )
+                                      .getDownloadURL();
+                                }
+                                addDish(
+                                  dishData: {
+                                    'name': _nameCont.text,
+                                    'description': _descriptionCont.text,
+                                    'time': _timeCont.text,
+                                    'img_url': dishImageUrl,
+                                    'dish_type': dishType,
+                                  },
+                                  cuisine: cuisineType,
+                                );
+
+                                Utils.normalToast(
+                                  'Dish added successfully !',
+                                  ToastGravity.BOTTOM,
+                                );
+
+                                return Navigator.pop(context);
+                              }
                             }
                           },
                           child: Text('Add dish'),

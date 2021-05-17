@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cookbook_app/constants.dart';
+import 'package:cookbook_app/pages/add_dish.dart';
 import 'package:cookbook_app/pages/edit_profile.dart';
 import 'package:cookbook_app/screens/home/home_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -105,6 +106,22 @@ Future<void> checkProfileExistsOrNot(BuildContext context, {bool filterByMobNo, 
   return;
 }
 
-Future<void> checkIfFoodExistsOrNot() async {
-  
+Future<bool> checkIfFoodExistsOrNot({String dishName, String cuisineType}) async {
+  QuerySnapshot<Map<String, dynamic>> dishes =
+      await fs.collection('cuisines').doc(cuisineType).collection('dishes').where('name', isEqualTo: dishName).get();
+
+  if (dishes.docs.length > 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+Future<bool> addDish({Map<String, String> dishData, String cuisine}) async {
+  QuerySnapshot<Map<String, dynamic>> qs = await fs.collection('cuisines').doc(cuisine).collection('dishes').get();
+  int len = qs.docs.length;
+
+  return fs.collection('cuisines').doc(cuisine).collection('dishes').doc('dish${len + 1}').set(dishData).then(
+        (value) => true,
+      );
 }

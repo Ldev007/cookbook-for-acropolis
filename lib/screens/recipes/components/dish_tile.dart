@@ -10,8 +10,10 @@ class DishTile extends StatelessWidget {
     Key key,
     @required this.title,
     @required this.description,
+    @required this.imgUrl,
   }) : super(key: key);
 
+  final String imgUrl;
   final String title;
   final String description;
 
@@ -78,11 +80,12 @@ class DishTile extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  left: 50,
+                  left: 60,
                   top: 20,
                   child: Image.network(
-                    'https://cdn.pixabay.com/photo/2016/12/05/10/07/dish-1883501_960_720.png',
-                    scale: 3,
+                    imgUrl,
+                    width: SizeConfigs.horizontalFractions * 50,
+                    height: SizeConfigs.verticalFractions * 18,
                   ),
                 )
               ],
