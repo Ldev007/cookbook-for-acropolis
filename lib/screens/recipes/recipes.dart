@@ -36,6 +36,12 @@ class _RecipesState extends State<Recipes> {
                     colorOfDishTypes.add(Colors.transparent);
                   });
                   return ListView.builder(
+                    // separatorBuilder: (ctx, i) => Divider(
+                    //   endIndent: 10,
+                    //   indent: 10,
+                    //   color: Colors.green[100],
+                    //   height: 0,
+                    // ),
                     itemCount: dishTypeSnap.data.docs.length,
                     itemBuilder: (ctx, i) {
                       return Container(
@@ -106,7 +112,19 @@ class _RecipesState extends State<Recipes> {
                           .where('dish_type', isEqualTo: dishType)
                           .snapshots(),
                       builder: (ctx, dishSnap) {
-                        if (dishSnap.connectionState == ConnectionState.done) {
+                        if (dishSnap.connectionState == ConnectionState.waiting) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Loading dishes'),
+                              10.height,
+                              CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                              )
+                            ],
+                          );
+                        } else {
                           if (dishSnap.data.docs.length > 0) {
                             return ListView.builder(
                               scrollDirection: Axis.horizontal,
@@ -122,38 +140,26 @@ class _RecipesState extends State<Recipes> {
                                 );
                               },
                             );
-                          }
-                        } else if (dishSnap.connectionState == ConnectionState.waiting) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('Loading dishes'),
-                              10.height,
-                              CircularProgressIndicator(
-                                strokeWidth: 1.5,
-                              )
-                            ],
-                          );
-                        } else {
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.arrow_back_ios,
-                                color: Colors.green[600],
-                              ),
-                              20.height,
-                              Text(
-                                'Please choose a dish type from left sidebar',
-                                style: TextStyle(
-                                  color: Colors.green[800],
-                                  fontSize: Theme.of(context).textTheme.subtitle1.fontSize,
+                          } else {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.arrow_back_ios,
+                                  color: Colors.green[600],
                                 ),
-                              ),
-                            ],
-                          );
+                                20.height,
+                                Text(
+                                  'Please choose a dish type from left sidebar',
+                                  style: TextStyle(
+                                    color: Colors.green[800],
+                                    fontSize: Theme.of(context).textTheme.subtitle1.fontSize,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
                         }
                       },
                     ),

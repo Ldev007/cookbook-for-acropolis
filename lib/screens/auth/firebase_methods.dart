@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cookbook_app/constants.dart';
-import 'package:cookbook_app/pages/add_dish.dart';
 import 'package:cookbook_app/pages/edit_profile.dart';
 import 'package:cookbook_app/screens/home/home_screen.dart';
 import 'package:flutter/cupertino.dart';
