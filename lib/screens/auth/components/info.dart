@@ -65,6 +65,7 @@ class Info extends StatelessWidget {
                     ' OR ',
                     style: TextStyle(
                       fontWeight: FontWeight.w300,
+                      fontSize: Theme.of(context).textTheme.button.fontSize,
                       color: Colors.white,
                     ),
                   ),

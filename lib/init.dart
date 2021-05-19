@@ -1,7 +1,8 @@
+import 'package:cookbook_app/screens/auth/auth_one.dart';
+import 'package:cookbook_app/screens/home/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cookbook_app/screens/home/home_screen.dart';
-import 'package:cookbook_app/screens/auth/auth_one.dart';
+import 'package:nb_utils/nb_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Initialise extends StatelessWidget {
@@ -22,10 +23,16 @@ class Initialise extends StatelessWidget {
   Future<Widget> checkUsersAuth(BuildContext context) async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
 
-    if (_prefs.getBool('loggedIn') ?? false) {
-      return Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    if ((_prefs.getBool('loggedIn') ?? false)) {
+      return HomeScreen().launch(
+        context,
+        isNewTask: true,
+      );
     } else {
-      return Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthOne()));
+      return AuthOne().launch(
+        context,
+        isNewTask: true,
+      );
     }
   }
 }
